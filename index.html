@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>All-in-One Demo Project</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font: Arial, sans-serif; margin:0; padding:0; }
+nav { display:flex; justify-content:space-around; padding:1rem; background:#333; position:sticky; top:0;}
+nav a { color:#fff; text-decoration:none; font-size:1rem; }
+header, section { padding:2rem; }
+h2 { text-align:center; margin-bottom:1rem; }
+.project-list, .product-list { display:flex; justify-content:space-around; flex-wrap:wrap; gap:1rem; }
+.project, .product { flex:1 1 30%; border:1px solid #ccc; padding:1rem; text-align:center; border-radius:8px; }
+form input, form textarea { display:block; margin:0.5rem 0; padding:0.5rem; width:100%; max-width:300px; }
+#productList div { padding:0.5rem; }
+@media(max-width:600px){ .project-list, .product-list { flex-direction:column; } }
+</style>
+</head>
+<body>
+
+<!-- Nav Bar -->
+<nav>
+  <a href="#about">About</a> | 
+  <a href="#projects">Projects</a> | 
+  <a href="#contact">Contact</a> | 
+  <a href="#todo">To-Do</a> | 
+  <a href="#product">Products</a>
+</nav>
+
+<!-- About Section -->
+<header id="about">
+  <h1>Welcome to My All-in-One Demo</h1>
+  <p>I'm a developer passionate about building clean, interactive, and well-crafted websites!</p>
+</header>
+
+<!-- Projects Section -->
+<section id="projects">
+  <h2>Projects</h2>
+  <div class="project-list">
+    <div class="project">Project 1</div>
+    <div class="project">Project 2</div>
+    <div class="project">Project 3</div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact">
+  <h2>Contact</h2>
+  <form>
+    <input placeholder="Your Name" required>
+    <input placeholder="Your Email" required>
+    <textarea placeholder="Your Message"></textarea>
+    <button>Send</button>
+  </form>
+</section>
+
+<!-- To-Do List Section -->
+<section id="todo">
+  <h2>To-Do List</h2>
+  <input id="taskInput" placeholder="Add a task..."><button id="addBtn">Add</button>
+  <ul id="taskList"></ul>
+</section>
+
+<!-- Products Section -->
+<section id="product">
+  <h2>Products</h2>
+  <label>Category:
+    <select id="categoryFilter">
+      <option value="">All</option>
+      <option value="electronics">Electronics</option>
+      <option value="clothing">Clothing</option>
+    </select>
+  </label>
+  <label>Sort by:
+    <select id="sortOption">
+      <option value="">None</option>
+      <option value="priceAsc">Price: Low to High</option>
+      <option value="priceDesc">Price: High to Low</option>
+    </select>
+  </label>
+  <div id="productList"></div>
+</section>
+
+<!-- Scripts -->
+<script>
+/* =========================
+           TO-DO LIST
+========================= */
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+const taskList = document.getElementById('taskList');
+const input = document.getElementById('taskInput');
+const addBtn = document.getElementById('addBtn');
+
+function renderTasks() {
+  taskList.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.textContent = t;
+    li.addEventListener('click', () => {
+      tasks.splice(i, 1);
+      saveTasks();
+      renderTasks();
+    });
+    taskList.appendChild(li);
+  });
+}
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+addBtn.addEventListener('click', () => {
+  if (!input.value.trim()) return;
+  tasks.push(input.value.trim());
+  saveTasks();
+  renderTasks();
+  input.value = '';
+});
+renderTasks();
+
+/* =========================
+       PRODUCT LISTING
+========================= */
+const products = [
+  {name: 'Phone', category: 'electronics', price: 300},
+  {name: 'Shirt', category: 'clothing', price: 20},
+  {name: 'Laptop', category: 'electronics', price: 1000}
+];
+const categoryFilter = document.getElementById('categoryFilter');
+const sortOption = document.getElementById('sortOption');
+const productList = document.getElementById('productList');
+
+function renderProducts() {
+  let filtered = [...products];
+  if (categoryFilter.value) {
+    filtered = filtered.filter(p => p.category === categoryFilter.value);
+  }
+  if (sortOption.value === 'priceAsc') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (sortOption.value === 'priceDesc') {
+    filtered.sort((a, b) => b.price - a.price);
+  }
+  productList.innerHTML = filtered.map(p =>
+    `<div>${p.name} | ${p.category} | $${p.price}</div>`).join('');
+}
+categoryFilter.addEventListener('change', renderProducts);
+sortOption.addEventListener('change', renderProducts);
+renderProducts();
+</script>
+</body>
+</html>
